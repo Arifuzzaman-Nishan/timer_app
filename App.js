@@ -1,34 +1,26 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-const screen = Dimensions.get('window');
-
-const formatNumber = number => `0${number}`.slice(-2);
-
-const getRemaining = (time) => {
-  const mins = Math.floor(time/60);
-  const secs = time - mins*60;
-  return {mins:formatNumber(mins),secs:formatNumber(secs)};
-}
+import { useEffect, useReducer } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { getRemaining } from './assets/helper/helper';
+import styles from './assets/styles/styles';
+import { initialState, timerReducer } from './timerReducer/timerReducer';
 
 export default function App() {
 
-  // state
-  const [remainingSecs,setRemainingSecs] = useState(0);
-  const [isActive,setIsActive] = useState(false);
+  const [state,dispatch] = useReducer(timerReducer,initialState);
+  const {remainingSecs,isActive} = state;
 
   // extract minitue and seconds
   const {mins,secs} = getRemaining(remainingSecs);
 
   const toggle = () => {
-    setIsActive(!isActive);
+    dispatch({type:"IS_ACTIVE",payload:!isActive});
   }
 
   // reset button
   const reset = () => {
-    setRemainingSecs(0);
-    setIsActive(false);
+    dispatch({type:"SEC_ZERO"});
+    dispatch({type:"IS_ACTIVE",payload:false});
   }
 
   useEffect(() => {
@@ -36,7 +28,7 @@ export default function App() {
     let interval = null;
     if(isActive){
       interval = setInterval(() => {
-        setRemainingSecs(prev => prev+1);
+        dispatch({type:"SEC_INCREMENT"});
       },1000)
     }else if(!isActive && remainingSecs !== 0){
       clearInterval(interval);
@@ -67,36 +59,4 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#07121B',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  button:{
-    borderWidth: 10,
-    borderColor: '#B9AAFF',
-    width: screen.width/2,
-    height: screen.width/2,
-    borderRadius: screen.width/2,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  buttonText:{
-    fontSize: 45,
-    color: '#B9AAFF'
-  },
-  timerText:{
-    color: '#fff',
-    fontSize: 90,
-    marginBottom: 20
-  },
-  buttonReset: {
-    marginTop: 20,
-    borderColor: "#FF851B"
-  },
-  buttonTextReset: {
-    color: "#FF851B"
-  }
-});
+

@@ -13,7 +13,7 @@ export const timerReducer = (state=initialState,action) => {
             newState.remainingSecs = 0;
             return newState;
         case "IS_ACTIVE":
-            newState.isActive = !newState.isActive;
+            newState.isActive = action.payload;
             return newState;
         default:
             return state;
